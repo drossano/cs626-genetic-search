@@ -5,8 +5,11 @@ import core_algorithms.Individual;
 import problems.TSP;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.*;
+
+import javax.print.DocFlavor.INPUT_STREAM;
 
 /**
  * Apply the genetic algorithm to solve the Traveling Salesperson
@@ -16,7 +19,8 @@ import java.util.*;
  * population generation are adapted for solving TSP instances.
  */
 public class GA_TSP extends GeneticAlgorithm<List<Integer>> {
-
+        // Random number generator
+    private static final Random RANDOM = new Random();
     private final TSP problem;
 
     /**
@@ -53,8 +57,30 @@ public class GA_TSP extends GeneticAlgorithm<List<Integer>> {
     @Override
     public Individual<List<Integer>> crossover(Individual<List<Integer>> p,
                                                Individual<List<Integer>> q){
-        // TODO: Implement ordered crossover as described above.
-
+        // Select a random portion of parent1's chromosome by
+        // randomly generating the start & the end positions.
+        Random r = new Random();
+        int startPos = r.nextInt(p.chromosome().size());
+        int endPos = r.nextInt(p.chromosome().size());
+        // make sure startPos <= endPos
+        // If startPos is greater than endPos, swap them.
+        if (startPos > endPos) {
+            int t = startPos;
+            startPos = endPos;
+            endPos = t;
+        }
+        //First, copy the entire parent 1 chromosome to child.
+        List<Integer> childChromosome = new ArrayList<>(p.chromosome());
+        //Next, copy those genes before startPos and after endPos from parent 2 chromosome to child.
+        for (int i = 0; i < startPos; i++) {
+            Integer new_gene= q.chromosome().get(i);
+            childChromosome.set(i, new_gene);
+        }
+        for (int i = endPos + 1; i<q.chromosome().size(); i++) {
+            Integer new_gene= q.chromosome().get(i);
+            childChromosome.set(i, new_gene);
+        }
+        return new Individual<>(childChromosome, calcFitnessScore(childChromosome));
     }
 
     /**
@@ -75,8 +101,8 @@ public class GA_TSP extends GeneticAlgorithm<List<Integer>> {
      */
     @Override
     public Individual<List<Integer>> mutate(Individual<List<Integer>> indiv){
-        // TODO: Implement swap mutation as described above.
-
+        List<Integer> chromosome = problem.generateNeighbor(indiv.chromosome());
+        return new Individual<>(chromosome, calcFitnessScore(chromosome));
     }
 
     /**
@@ -175,8 +201,10 @@ public class GA_TSP extends GeneticAlgorithm<List<Integer>> {
      * @throws Exception If file reading fails
      */
     public static void main(String[] args) throws Exception {
+        System.out.println("file loc");
+        System.out.println(new File(".").getAbsoluteFile());
         int COMMENT_LINES = 3;
-        String FOLDER_PATH = "TSP_Test_Cases/";
+        String FOLDER_PATH = "LocalSearch/TSP_Test_Cases/";
         String fileName = "TSP_";
         int[] numCities = {5,10,15,20, 25};
         List<int[][]> distanceMatrices = new ArrayList<>();

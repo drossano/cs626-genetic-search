@@ -167,21 +167,16 @@ public abstract class GeneticAlgorithm<G> {
      * @return A new list containing the offspring individuals
      */
     protected List<Individual<G>> produceNextGeneration(List<Individual<G>> population) {
-        // TODO: Complete this method following the steps described above.
-        List<Individual<G>> offspring;
-        parent1 = select(population);
-        do {
-            parent2 = select(population);
-        } while (parent1 == parent2);
-
-        for (int i = 0; i < population.length; i++) {
-            parent1 = select(population);
-            do {
-                parent2 = select(population);
-            } while (parent1 == parent2);
-            child = mutate(crossover(parent1, parent2));
-            offspring.add(child);
+        List<Individual<G>> offspring_list = new ArrayList<>();
+        for (int i = 0; i < population.size(); i++) {
+            Individual<G> parent1 = select(population, null);
+            Individual<G> parent2 = select(population, parent1);
+            Individual<G>  child = crossover(parent1, parent2);
+            if (RANDOM.nextFloat() <= MUTATION) {
+                child = mutate(child);
+            }
+            offspring_list.add(child);
         }
-        return offspring;
+        return offspring_list;
     }
 }
