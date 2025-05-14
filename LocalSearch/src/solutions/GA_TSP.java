@@ -70,16 +70,20 @@ public class GA_TSP extends GeneticAlgorithm<List<Integer>> {
             endPos = t;
         }
         //First, copy the entire parent 1 chromosome to child.
-        List<Integer> childChromosome = new ArrayList<>(p.chromosome());
+        List<Integer> childChromosome = new ArrayList<>();
+        List<Integer> crossOvIntegers = new ArrayList<>();
+
+        for (int i = startPos; i <= endPos; i++) {
+            crossOvIntegers.add(p.chromosome().get(i));
+        }
+
         //Next, copy those genes before startPos and after endPos from parent 2 chromosome to child.
-        for (int i = 0; i < startPos; i++) {
-            Integer new_gene= q.chromosome().get(i);
-            childChromosome.set(i, new_gene);
+        for (Integer gene : q.chromosome()) {
+            if (crossOvIntegers.contains(gene) == false) {
+                childChromosome.add(gene);
+            }
         }
-        for (int i = endPos + 1; i<q.chromosome().size(); i++) {
-            Integer new_gene= q.chromosome().get(i);
-            childChromosome.set(i, new_gene);
-        }
+        childChromosome.addAll(startPos,crossOvIntegers);
         return new Individual<>(childChromosome, calcFitnessScore(childChromosome));
     }
 
